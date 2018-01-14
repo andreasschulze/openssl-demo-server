@@ -44,5 +44,4 @@ Usage: openssl-demo-server [options]
 It the program cannot access the OCSP response file OCSP will be not used.
 
 ## Bugs:
-I'm sure there are some ...
-For that DO NOT USE that software on a production level system.
+I'm sure there are some! For that reason: DO NOT USE that software on a production level system!
