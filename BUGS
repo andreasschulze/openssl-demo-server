@@ -1,0 +1,11 @@
+using firefox as client I get randomly this error when pressing F5 or SHIFT+F5
+
+    Fehler: Gesicherte Verbindung fehlgeschlagen
+    Die Verbindung zum Server wurde zurückgesetzt, während die Seite geladen wurde.
+    Die Website kann nicht angezeigt werden, da die Authentizität der erhaltenen Daten nicht verifiziert werden konnte.
+
+the error does not happen on multiple 
+ - curl -v https://...
+ - wget -O - https://...
+
+that happen regardless ocsp is enabled or not
