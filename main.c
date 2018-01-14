@@ -189,6 +189,7 @@ SSL_CTX *create_context()
 static int add_ocsp_data_cb(SSL *s, void *arg __attribute__((unused))) {
 
     if (ocsp) {
+
         unsigned char *p;
         
         if ((p=malloc(ocsp_len)) == NULL) {
@@ -203,16 +204,14 @@ static int add_ocsp_data_cb(SSL *s, void *arg __attribute__((unused))) {
         }
        
         return SSL_TLSEXT_ERR_OK;
-    }
-
-    return SSL_TLSEXT_ERR_NOACK;
-
+    } else
+        return SSL_TLSEXT_ERR_NOACK;
 }
 
 void configure_context(SSL_CTX *ctx, const char *progname)
 {
 
-    /* Set the key and cert */
+    /* Set the key and cert+chain */
     if (SSL_CTX_use_certificate_chain_file(ctx, certfile) <= 0) {
         ERR_print_errors_fp(stderr);
 	exit(EXIT_FAILURE);
@@ -232,6 +231,7 @@ void configure_context(SSL_CTX *ctx, const char *progname)
     /* Setup session resumption capability */
     SSL_CTX_set_session_id_context(ctx, (const unsigned char*) progname, strlen(progname));
 
+    /* enable OCSP stapling */
     SSL_CTX_set_tlsext_status_cb(ctx, add_ocsp_data_cb);
 }
 
@@ -286,10 +286,14 @@ int main(int argc, char **argv)
         }
         else {
             SSL_write(ssl, reply, strlen(reply));
+
+            /*
+             * that's missing in the "Simple_TLS_Server" from https://wiki.openssl.org/
+             * and make session resumption don't work out of the box
+             */
             SSL_shutdown(ssl);
         }
 
-        /* SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN|SSL_RECEIVED_SHUTDOWN); */
         SSL_free(ssl);
         close(client);
     }

@@ -55,7 +55,7 @@ int get_ocsp(char *filename, unsigned char **ocsp) {
   OCSP_RESPONSE_free(response);
   BIO_free(bio);
 
-  fprintf(stdout, "get_ocsp: ok\n");
+  fprintf(stdout, "get_ocsp: %i octets\n", len);
 
   *ocsp = buf;
   return len;

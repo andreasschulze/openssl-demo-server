@@ -16,6 +16,7 @@ Example program to implement a TLS server. It was written for demonstration and 
  - based on sample code "Simple_TLS_Server" from https://wiki.openssl.org/
  - DNSSEC Authentication chain extension based on the implementation of Shumon Huque available at https://github.com/shuque/chainserver
  - session resumption worked after I read https://nachtimwald.com/2014/10/05/server-side-session-cache-in-openssl/
+ - OCSP implementaion was copied from [nginx](https://github.com/nginx/nginx/blob/master/src/event/ngx_event_openssl_stapling.c)
 
 ## Build:
 ```
