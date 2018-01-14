@@ -41,7 +41,7 @@ Usage: openssl-demo-server [options]
   -oscp  <file>   server ocsp response file default: ./ocsp.response
 ```
 
-It the program cannot access the OCSP response file OCSP will be not used.
+If the program cannot access the OCSP response file OCSP will be not used.
 
 ## Bugs:
 I'm sure there are some! For that reason: DO NOT USE that software on a production level system!
