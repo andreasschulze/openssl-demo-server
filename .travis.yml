@@ -1,6 +1,6 @@
 language: c
-dist: trusty
+#dist: trusty
 before_install:
-  - apt-get -qq update
-  - apt-get install libssl-dev libgetdns-dev
+  - sudo apt-get -qq update
+  - sudo apt-get install libssl-dev libgetdns-dev
 script: make
