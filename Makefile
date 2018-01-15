@@ -6,7 +6,7 @@ LIBS   += -lssl -lcrypto -lgetdns
 endif
 
 all: main.o ocsp-stapling.o dnssec-chain-extension.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -o openssl-demo-server $^
+	$(CC) $(CFLAGS) $(LDFLAGS) -o openssl-demo-server $^ $(LIBS)
 
 clean:
 	rm -f openssl-demo-server *.o
