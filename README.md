@@ -54,3 +54,7 @@ If the program cannot access the OCSP response file OCSP will be not used.
 
 ## Bugs:
 I'm sure there are some! For that reason: DO NOT USE that software on a production level system!
+
+## missing features:
+ - proxy mode
+ - IPv6 support
