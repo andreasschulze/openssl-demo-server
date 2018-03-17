@@ -12,6 +12,10 @@ Example program to implement a TLS server. It was written for demonstration and 
  - session resumption
  - 4 x 100 at [SSLlabs](https://ssllabs.com/ssltest/) given the right key and certificate is used
 
+## missing features:
+ - proxy mode
+ - IPv6 support
+
 ## Source:
  - based on sample code "Simple_TLS_Server" from https://wiki.openssl.org/
  - DNSSEC Authentication chain extension based on the implementation of Shumon Huque available at https://github.com/shuque/chainserver
@@ -54,7 +58,3 @@ If the program cannot access the OCSP response file OCSP will be not used.
 
 ## Bugs:
 I'm sure there are some! For that reason: DO NOT USE that software on a production level system!
-
-## missing features:
- - proxy mode
- - IPv6 support
