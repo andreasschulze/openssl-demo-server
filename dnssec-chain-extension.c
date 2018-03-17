@@ -37,6 +37,9 @@ wirerr *insert_wirerr(wirerr *current, getdns_bindata *new)
     return w;
 }
 
+/*
+ * cppcheck --enable-all: function never used
+ *
 void free_wirerr_list(wirerr *head)
 {
     wirerr *current;
@@ -48,6 +51,7 @@ void free_wirerr_list(wirerr *head)
     }
     return;
 }
+ */
 
 getdns_bindata *getchain(char *qname, uint16_t qtype) {
     unsigned char *cp;
@@ -56,7 +60,7 @@ getdns_bindata *getchain(char *qname, uint16_t qtype) {
     getdns_return_t rc;
     getdns_dict    *extensions = NULL;
     getdns_dict *response;
-    getdns_bindata *chaindata = malloc(sizeof(getdns_bindata));
+    getdns_bindata *chaindata = NULL;
     wirerr *wp = wirerr_list;
 
     rc = getdns_context_create(&ctx, 1);
@@ -178,6 +182,11 @@ getdns_bindata *getchain(char *qname, uint16_t qtype) {
     }
 
     getdns_context_destroy(ctx);
+
+    if ((chaindata = malloc(sizeof(getdns_bindata))) == NULL) {
+      (void) fprintf(stderr, "FAIL: malloc(chaindata) failed\n");
+      return NULL;
+    }
 
     /* 
      * Generate dnssec_chain extension data and return pointer to it.

@@ -55,10 +55,10 @@ void print_usage(const char* progname) {
 void parse_options(const char *progname, int argc, char **argv) {
 
     int		i;
-    char	*optword;
 
     for (i = 1; i < argc; i++) {
 
+        char	*optword;
         optword = argv[i];
 
         if (!strcmp(optword, "-h")) {
