@@ -26,6 +26,8 @@ uint16_t portnumber;
 static unsigned char *ocsp;
 long ocsp_len;
 
+char *proxy;
+
 void print_usage(const char* progname) {
 
     char *hostname;
@@ -35,12 +37,13 @@ void print_usage(const char* progname) {
     gethostname(hostname, 512);
 
     fprintf(stdout, "\nUsage: %s [options]\n\n"
-            "  -h:             print this help message\n"
-            "  -sname <name>   server name               default: %s\n"
-            "  -port  <port>   server port               default: %s\n"
-            "  -cert  <file>   server certificate file   default: ./%s\n"
-            "  -key   <file>   server private key file   default: ./%s\n"
-            "  -oscp  <file>   server ocsp response file default: ./%s\n"
+            "  -h:                print this help message\n"
+            "  -sname <name>      server name               default: %s\n"
+            "  -port  <port>      server port               default: %s\n"
+            "  -cert  <file>      server certificate file   default: ./%s\n"
+            "  -key   <file>      server private key file   default: ./%s\n"
+            "  -oscp  <file>      server ocsp response file default: ./%s\n"
+            "  -proxy <ip>:<port> IPv4 address and port to forward to\n"
             "\n",
             progname,
             hostname,
@@ -93,6 +96,12 @@ void parse_options(const char *progname, int argc, char **argv) {
                 print_usage(progname);
             }
             ocspfile = argv[i];
+        } else if (!strcmp(optword, "-proxy")) {
+            if (++i >= argc || !*argv[i]) {
+                fprintf(stderr, "-proxy: proxy address and port expected.\n");
+                print_usage(progname);
+            }
+            proxy = argv[i];
         } else if (optword[0] == '-') {
             fprintf(stderr, "Unrecognized option: %s\n", optword);
             print_usage(progname);
@@ -174,7 +183,7 @@ SSL_CTX *create_context()
     const SSL_METHOD *method;
     SSL_CTX *ctx;
 
-    method = SSLv23_server_method();
+    method = TLS_server_method();
 
     ctx = SSL_CTX_new(method);
     if (!ctx) {
