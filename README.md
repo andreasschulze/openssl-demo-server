@@ -34,6 +34,7 @@ $ export CFLAGS="$( dpkg-buildflags --get CFLAGS ) $( dpkg-buildflags --get CPPF
 $ export LDFLAGS="$( dpkg-buildflags --get LDLAGS )"
 $ export LIBS='-lssl-dv -lcrypto-dv -lgetdns'
 $ make -B
+```
 
 ## Usage:
 ```
