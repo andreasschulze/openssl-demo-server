@@ -48,7 +48,7 @@ $ make -B
 
 Usage: openssl-demo-server [options]
 
-  -h:                print this help message
+  -h                  print this help message
   -sname  <name>      server name               default: dubai.signing-milter.org
   -port   <port>      server port               default: 443
   -cert   <file>      server certificate file   default: ./cert+intermediate.pem

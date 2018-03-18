@@ -46,7 +46,7 @@ void print_usage(const char* progname) {
     gethostname(hostname, 512);
 
     fprintf(stdout, "\nUsage: %s [options]\n\n"
-            "  -h:                print this help message\n"
+            "  -h                  print this help message\n"
             "  -sname  <name>      server name               default: %s\n"
             "  -port   <port>      server port               default: %s\n"
             "  -cert   <file>      server certificate file   default: ./%s\n"
