@@ -24,10 +24,8 @@ char *certfile				= DEFAULT_SERVER_CERT_FILE;
 char *keyfile				= DEFAULT_SERVER_KEY_FILE;
 char *ocspfile				= DEFAULT_OSCP_STAPLING_FILE;
 char *chrootdir                         = NULL;
-int chroot_done                         = 0;
 char *username                          = NULL;
 struct passwd *pwentry                  = NULL;
-int setuid_done                         = 0;
 
 char *hostname;
 uint16_t portnumber;
@@ -292,39 +290,36 @@ void sigsetup(void) {
     sigaction(SIGINT, &sa, NULL);
 }
 
-void try_chroot(char *dir) {
+void try_chroot(void) {
 
-    if (chroot_done)
+    if (NULL == chrootdir)
 	return;
 
-    if (0 != chdir(dir)) {
+    if (0 != chdir(chrootdir)) {
         perror("try_chroot: cannot chdir");
         exit(EXIT_FAILURE);
     }
-    if (0 != chroot(dir)) {
+    if (0 != chroot(chrootdir)) {
         perror("try_chroot: cannot chroot");
         exit(EXIT_FAILURE);
     }
 
-    fprintf(stdout, "chdir+chroot %s\n", dir);
-    chroot_done = 1;
+    fprintf(stdout, "chdir+chroot %s\n", chrootdir);
+    chrootdir = NULL;
 }
 
-void try_setuid(struct passwd *pw) {
+void try_setuid(void) {
 
-    if (setuid_done)
+    if (NULL == username)
         return;
 
-    if (!pw)
-        return;
-
-    if (setuid(pw->pw_uid) != 0) {
+    if (setuid(pwentry->pw_uid) != 0) {
         perror("try_setuid: cannot setuid");
         exit(EXIT_FAILURE);
     }
 
     fprintf(stdout, "setuid(%s)\n", username);
-    setuid_done = 1;
+    username = NULL;
 }
 
 int main(int argc, char **argv)
@@ -371,7 +366,7 @@ int main(int argc, char **argv)
     strcpy(host_port, server_name);
     strcat(host_port, ":");
     strcat(host_port, server_port);
-    fprintf(stderr, "host_port: %s\n", host_port);
+    fprintf(stdout, "host_port: %s\n", host_port);
 
     if ((in = BIO_new_accept(host_port)) == NULL) {
         ERR_print_errors_fp(stderr);
@@ -391,11 +386,8 @@ again:
         exit(EXIT_FAILURE);
     }
 
-    if (chrootdir)
-	try_chroot(chrootdir);
-
-    if (pwentry)
-        try_setuid(pwentry);
+    try_chroot();
+    try_setuid();
 
     if (proxy)
         do_proxy(proxy, in);
