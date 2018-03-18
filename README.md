@@ -46,12 +46,13 @@ $ make -B
 
 Usage: openssl-demo-server [options]
 
-  -h:             print this help message
-  -sname <name>   server name               default: $(fqdn)
-  -port  <port>   server port               default: 443
-  -cert  <file>   server certificate file   default: ./cert+intermediate.pem
-  -key   <file>   server private key file   default: ./key.pem
-  -oscp  <file>   server ocsp response file default: ./ocsp.response
+  -h:                print this help message
+  -sname <name>      server name                         default: $(fqdn)
+  -port  <port>      server port                         default: 443
+  -cert  <file>      server certificate file             default: ./cert+intermediate.pem
+  -key   <file>      server private key file             default: ./key.pem
+  -oscp  <file>      server ocsp response file           default: ./ocsp.response
+  -proxy <ip>:<port> IPv4 address and port to forward to
 ```
 
 If the program cannot access the OCSP response file OCSP will be not used.

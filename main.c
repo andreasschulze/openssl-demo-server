@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -8,6 +9,7 @@
 
 #include "ocsp-stapling.h"
 #include "dnssec-chain-extension.h"
+#include "proxy.h"
 
 #define DEFAULT_SERVER_PORT             "443"
 #define DEFAULT_SERVER_CERT_FILE	"cert+intermediate.pem"
@@ -139,6 +141,7 @@ void parse_options(const char *progname, int argc, char **argv) {
     }
 }
 
+/*
 int create_socket(int port)
 {
     int s;
@@ -166,6 +169,7 @@ int create_socket(int port)
 
     return s;
 }
+*/
 
 void init_openssl()
 { 
@@ -244,11 +248,35 @@ void configure_context(SSL_CTX *ctx, const char *progname)
     SSL_CTX_set_tlsext_status_cb(ctx, add_ocsp_data_cb);
 }
 
+static volatile int done = 0;
+
+void interrupt(int sig) {
+
+    (void)(sig);	/* sig is unused, avoid warning */
+
+    done = 1;
+}
+
+void sigsetup(void) {
+
+    struct sigaction sa;
+
+    sa.sa_flags = SA_RESETHAND;
+    sa.sa_handler = interrupt;
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGINT, &sa, NULL);
+}
+
 int main(int argc, char **argv)
 {
     const char	*progname;
-    int		sock;
+    char	*host_port;
     SSL_CTX	*ctx;
+    BIO		*server_bio;
+    BIO         *in  = NULL;
+    BIO         *tmp;
+    SSL         *ssl = NULL;
+    const char  reply[] = "HTTP/1.1 200 OK\nServer: openssl-demo-server\nstrict-transport-security: max-age=17777777\n\ntest\n";
 
     if ((progname = strrchr(argv[0], '/')))
         progname++;
@@ -272,13 +300,54 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    sock = create_socket(portnumber);
+    server_bio = BIO_new_ssl(ctx, 0);
+    BIO_get_ssl(server_bio, &ssl);
+    SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
+
+    if ((host_port = malloc( strlen(server_name) + 1 + strlen(server_port) )) == NULL) {
+        perror("main: malloc() failed");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(host_port, server_name);
+    strcat(host_port, ":");
+    strcat(host_port, server_port);
+    fprintf(stderr, "host_port: %s\n", host_port);
+
+    if ((in = BIO_new_accept(host_port)) == NULL) {
+        ERR_print_errors_fp(stderr);
+        free(host_port);
+        exit(EXIT_FAILURE);
+    }
+
+    BIO_set_accept_bios(in, server_bio);
+
+    sigsetup();
+
+again:
+
+    if (BIO_do_accept(in) <= 0) {
+        fprintf(stderr, "Error setting up accept BIO\n");
+        ERR_print_errors_fp(stderr);
+        exit(EXIT_FAILURE);
+    }
+
+    if (proxy)
+        do_proxy(proxy, in);
+
+    else while (!done) {
+
+        BIO_write(in, reply, strlen(reply));
+
+        tmp = BIO_pop(in);
+        BIO_free_all(tmp);
+        goto again;
+    }
 
     /* Handle connections */
+/*
     while(1) {
         struct sockaddr_in addr;
         uint len = sizeof(addr);
-        SSL *ssl;
         const char reply[] = "HTTP/1.1 200 OK\nServer: openssl-demo-server\nstrict-transport-security: max-age=17777777\n\ntest\n";
 
         int client = accept(sock, (struct sockaddr*)&addr, &len);
@@ -296,10 +365,10 @@ int main(int argc, char **argv)
         else {
             SSL_write(ssl, reply, strlen(reply));
 
-            /*
+ */         /*
              * that's missing in the "Simple_TLS_Server" from https://wiki.openssl.org/
              * and make session resumption don't work out of the box
-             */
+             */ /*
             SSL_shutdown(ssl);
         }
 
@@ -308,6 +377,7 @@ int main(int argc, char **argv)
     }
 
     close(sock);
+ */
     SSL_CTX_free(ctx);
     cleanup_openssl();
     free(ocsp);

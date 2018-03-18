@@ -5,7 +5,7 @@ ifndef LIBS
 LIBS   += -lssl -lcrypto -lgetdns
 endif
 
-all: main.o ocsp-stapling.o dnssec-chain-extension.o
+all: main.o ocsp-stapling.o dnssec-chain-extension.o proxy.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o openssl-demo-server $^ $(LIBS)
 
 check:
