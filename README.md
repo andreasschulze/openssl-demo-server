@@ -12,9 +12,10 @@ Example program to implement a TLS server. It was written for demonstration and 
  - session resumption
  - 4 x 100 at [SSLlabs](https://ssllabs.com/ssltest/) given the right key and certificate is used
 
-## missing features:
- - proxy mode
- - IPv6 support
+
+## Limitations:
+ - can't specify to listen in IPv4 only if IPv6 is available
+ - proxy-mode: destination must be an IPv4 address
 
 ## Source:
  - based on sample code "Simple_TLS_Server" from https://wiki.openssl.org/
