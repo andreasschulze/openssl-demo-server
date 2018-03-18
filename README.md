@@ -11,7 +11,8 @@ Example program to implement a TLS server. It was written for demonstration and 
  - DNSSEC Authentication chain extension
  - session resumption
  - 4 x 100 at [SSLlabs](https://ssllabs.com/ssltest/) given the right key and certificate is used
-
+ - chroot operation possible
+ - setuid(non root user) possible
 
 ## Limitations:
  - can't specify to listen in IPv4 only if IPv6 is available
@@ -48,12 +49,14 @@ $ make -B
 Usage: openssl-demo-server [options]
 
   -h:                print this help message
-  -sname <name>      server name                         default: $(fqdn)
-  -port  <port>      server port                         default: 443
-  -cert  <file>      server certificate file             default: ./cert+intermediate.pem
-  -key   <file>      server private key file             default: ./key.pem
-  -oscp  <file>      server ocsp response file           default: ./ocsp.response
-  -proxy <ip>:<port> IPv4 address and port to forward to
+  -sname  <name>      server name               default: dubai.signing-milter.org
+  -port   <port>      server port               default: 443
+  -cert   <file>      server certificate file   default: ./cert+intermediate.pem
+  -key    <file>      server private key file   default: ./key.pem
+  -oscp   <file>      server ocsp response file default: ./ocsp.response
+  -chroot <dir>       chroot to directory       default: don't chroot
+  -user   <name>      switch to that user       default: don't switch user
+  -proxy  <ip>:<port> IPv4 address and port to forward to
 ```
 
 If the program cannot access the OCSP response file OCSP will be not used.

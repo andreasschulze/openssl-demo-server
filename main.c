@@ -6,6 +6,8 @@
 #include <arpa/inet.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #include "ocsp-stapling.h"
 #include "dnssec-chain-extension.h"
@@ -21,6 +23,11 @@ char *server_port			= DEFAULT_SERVER_PORT;
 char *certfile				= DEFAULT_SERVER_CERT_FILE;
 char *keyfile				= DEFAULT_SERVER_KEY_FILE;
 char *ocspfile				= DEFAULT_OSCP_STAPLING_FILE;
+char *chrootdir                         = NULL;
+int chroot_done                         = 0;
+char *username                          = NULL;
+struct passwd *pwentry                  = NULL;
+int setuid_done                         = 0;
 
 char *hostname;
 uint16_t portnumber;
@@ -40,12 +47,14 @@ void print_usage(const char* progname) {
 
     fprintf(stdout, "\nUsage: %s [options]\n\n"
             "  -h:                print this help message\n"
-            "  -sname <name>      server name               default: %s\n"
-            "  -port  <port>      server port               default: %s\n"
-            "  -cert  <file>      server certificate file   default: ./%s\n"
-            "  -key   <file>      server private key file   default: ./%s\n"
-            "  -oscp  <file>      server ocsp response file default: ./%s\n"
-            "  -proxy <ip>:<port> IPv4 address and port to forward to\n"
+            "  -sname  <name>      server name               default: %s\n"
+            "  -port   <port>      server port               default: %s\n"
+            "  -cert   <file>      server certificate file   default: ./%s\n"
+            "  -key    <file>      server private key file   default: ./%s\n"
+            "  -oscp   <file>      server ocsp response file default: ./%s\n"
+            "  -chroot <dir>       chroot to directory       default: don't chroot\n"
+            "  -user   <name>      switch to that user       default: don't switch user\n"
+            "  -proxy  <ip>:<port> IPv4 address and port to forward to\n"
             "\n",
             progname,
             hostname,
@@ -98,6 +107,22 @@ void parse_options(const char *progname, int argc, char **argv) {
                 print_usage(progname);
             }
             ocspfile = argv[i];
+        } else if (!strcmp(optword, "-chroot")) {
+            if (++i >= argc || !*argv[i]) {
+                fprintf(stderr, "-chroot: directory expected.\n");
+                print_usage(progname);
+            }
+            chrootdir = argv[i];
+        } else if (!strcmp(optword, "-user")) {
+            if (++i >= argc || !*argv[i]) {
+                fprintf(stderr, "-user: username expected.\n");
+                print_usage(progname);
+            }
+            username = argv[i];
+            if ((pwentry = getpwnam(username)) == NULL) {
+                fprintf(stderr, "Error: no password file entry for %s\n", username);
+                print_usage(progname);
+            }
         } else if (!strcmp(optword, "-proxy")) {
             if (++i >= argc || !*argv[i]) {
                 fprintf(stderr, "-proxy: proxy address and port expected.\n");
@@ -267,6 +292,41 @@ void sigsetup(void) {
     sigaction(SIGINT, &sa, NULL);
 }
 
+void try_chroot(char *dir) {
+
+    if (chroot_done)
+	return;
+
+    if (0 != chdir(dir)) {
+        perror("try_chroot: cannot chdir");
+        exit(EXIT_FAILURE);
+    }
+    if (0 != chroot(dir)) {
+        perror("try_chroot: cannot chroot");
+        exit(EXIT_FAILURE);
+    }
+
+    fprintf(stdout, "chdir+chroot %s\n", dir);
+    chroot_done = 1;
+}
+
+void try_setuid(struct passwd *pw) {
+
+    if (setuid_done)
+        return;
+
+    if (!pw)
+        return;
+
+    if (setuid(pw->pw_uid) != 0) {
+        perror("try_setuid: cannot setuid");
+        exit(EXIT_FAILURE);
+    }
+
+    fprintf(stdout, "setuid(%s)\n", username);
+    setuid_done = 1;
+}
+
 int main(int argc, char **argv)
 {
     const char	*progname;
@@ -294,7 +354,7 @@ int main(int argc, char **argv)
         perror("main: get_ocsp failed");
         exit(EXIT_FAILURE);
     }
-    
+
     if (SSL_CTX_add_dnssec_chain_extension(ctx, server_name, portnumber) != 0 ) {
         perror("main: SSL_CTX_add_dnssec_chain failed");
         exit(EXIT_FAILURE);
@@ -330,6 +390,12 @@ again:
         ERR_print_errors_fp(stderr);
         exit(EXIT_FAILURE);
     }
+
+    if (chrootdir)
+	try_chroot(chrootdir);
+
+    if (pwentry)
+        try_setuid(pwentry);
 
     if (proxy)
         do_proxy(proxy, in);
