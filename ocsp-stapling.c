@@ -13,13 +13,13 @@ int get_ocsp(char *filename, unsigned char **ocsp) {
     *ocsp = NULL;
     return 0;
   }
-    
+
   if ((bio = BIO_new_file(filename, "r")) == NULL) {
     perror("get_ocsp: BIO_new_file failed");
     ERR_print_errors_fp(stderr);
     return -1;
   }
- 
+
   if ((response = d2i_OCSP_RESPONSE_bio(bio, NULL)) == NULL) {
     perror("get_ocsp: d2i_OCSP_RESPONSE_bio failed");
     ERR_print_errors_fp(stderr);
