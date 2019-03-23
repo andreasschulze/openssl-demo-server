@@ -188,7 +188,7 @@ getdns_bindata *getchain(char *qname, uint16_t qtype) {
       return NULL;
     }
 
-    /* 
+    /*
      * Generate dnssec_chain extension data and return pointer to it.
      */
     chaindata->size = 4 + wirerr_size;
