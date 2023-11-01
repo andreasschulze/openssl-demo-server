@@ -54,6 +54,12 @@ export DEB_BUILD_MAINT_OPTIONS CFLAGS LDFLAGS LIBS
 make -B
 ```
 
+## Docker Build
+
+```sh
+docker build -t openssl-demo-server .
+```
+
 ## Usage
 
 ```sh
