@@ -58,6 +58,10 @@ make -B
 
 ```sh
 docker build -t openssl-demo-server .
+
+OR
+
+docker-compose build
 ```
 
 ## Usage

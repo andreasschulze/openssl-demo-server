@@ -1,0 +1,6 @@
+version: '2.4'
+services:
+  openssl-demo-server:
+    build:
+      context: .
+    image: 'openssl-demo-server'
