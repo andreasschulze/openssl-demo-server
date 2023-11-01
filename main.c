@@ -27,7 +27,6 @@ char *chrootdir                         = NULL;
 char *username                          = NULL;
 struct passwd *pwentry                  = NULL;
 
-char *hostname;
 uint16_t portnumber;
 
 static unsigned char *ocsp;
@@ -37,11 +36,9 @@ char *proxy;
 
 void print_usage(const char* progname) {
 
-    char *hostname;
-
     /* may fail */
-    hostname = malloc(512);
-    gethostname(hostname, 512);
+    server_name = malloc(512);
+    gethostname(server_name, 512);
 
     fprintf(stdout, "\nUsage: %s [options]\n\n"
             "  -h                  print this help message\n"
@@ -55,7 +52,7 @@ void print_usage(const char* progname) {
             "  -proxy  <ip>:<port> IPv4 address and port to forward to\n"
             "\n",
             progname,
-            hostname,
+            server_name,
             DEFAULT_SERVER_PORT,
             DEFAULT_SERVER_CERT_FILE,
             DEFAULT_SERVER_KEY_FILE,

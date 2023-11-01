@@ -114,7 +114,7 @@ getdns_bindata *getchain(char *qname, uint16_t qtype) {
         fprintf(stderr, "FAIL: %s: All bogus answers.\n", qname);
         return NULL;
     default:
-        fprintf(stderr, "FAIL: %s: error status code: %d.\n", qname, status);
+        fprintf(stderr, "FAIL: %s: error status code: %u.\n", qname, status);
         return NULL;
     }
 
