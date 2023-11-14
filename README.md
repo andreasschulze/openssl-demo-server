@@ -1,5 +1,7 @@
 # openssl-demo-server
 
+[![markdownlint](https://github.com/andreasschulze/openssl-demo-server/actions/workflows/markdownlint.yml/badge.svg)](https://github.com/andreasschulze/openssl-demo-server/actions/workflows/markdownlint.yml)
+
 Example program to implement a TLS server. It was written for demonstration and
 educational purposes.
 
