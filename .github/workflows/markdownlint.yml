@@ -1,12 +1,15 @@
 name: markdownlint
 on:
- push:
- pull_request:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '2 2 1 * *'
 jobs:
   run_markdownlint:
     runs-on: ubuntu-latest
     steps:
-    - name: checkout
-      uses: actions/checkout@v4
-    - name: Run markdownlint
-      uses: actionshub/markdownlint@main
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: Run markdownlint
+        uses: actionshub/markdownlint@main
